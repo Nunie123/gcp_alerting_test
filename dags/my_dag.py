@@ -48,5 +48,6 @@ dag = DAG(
 t_run_my_script = PythonOperator(
     task_id="run_my_script",
     python_callable=my_script.fail_sometimes,
+    on_failure_callback=send_error_to_slack,
     dag=dag
 )
