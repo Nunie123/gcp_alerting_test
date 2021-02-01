@@ -9,14 +9,19 @@ from airflow.operators.python_operator import PythonOperator
 from python_scripts import my_script
 
 
-def get_slack_webhook():
+def get_secret(project, secret_name, version):
+    # client = secretmanager.SecretManagerServiceClient()
+    # name = "projects/204024561480/secrets/slack_webhook/versions/latest"
+    # response = client.access_secret_version(request={"name": name})
+    # return response.payload.data.decode("UTF-8")
     client = secretmanager.SecretManagerServiceClient()
-    name = "projects/204024561480/secrets/slack_webhook/versions/latest"
-    response = client.access_secret_version(request={"name": name})
-    return response.payload.data.decode("UTF-8")
+    secret_path = client.secret_version_path(project, secret_name, version)
+    secret = client.access_secret_version(secret_path)
+    logging.info(f"Obtained {secret_name} from GCP Secret Manager.")
+    return secret.payload.data.decode("UTF-8")
 
 def send_error_to_slack(context):
-    webhook_url = get_slack_webhook()
+    webhook_url = get_secret('de-book-dev', 'slack_webhook', 'latest')
     message = textwrap.dedent(f"""\
             :red_circle: Task Failed.
             *Dag*: {context.get('task_instance').dag_id}
