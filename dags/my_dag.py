@@ -17,7 +17,7 @@ def get_secret(project, secret_name, version):
     client = secretmanager.SecretManagerServiceClient()
     secret_path = client.secret_version_path(project, secret_name, version)
     secret = client.access_secret_version(secret_path)
-    logging.info(f"Obtained {secret_name} from GCP Secret Manager.")
+    print(f"Obtained {secret_name} from GCP Secret Manager.")
     return secret.payload.data.decode("UTF-8")
 
 def send_error_to_slack(context):
